@@ -69,6 +69,12 @@
 
 Prism використовує визначені в OpenAPI схеми для формування mock-відповідей, що дозволяє перевірити контракт без реалізації повноцінної серверної логіки.
 
+<img width="1003" height="153" alt="Screenshot_20261111_182707" src="https://github.com/user-attachments/assets/1d5507da-ca72-400a-81f3-2344ea6748ab" />
+<img width="513" height="549" alt="Screenshot_20261111_183039" src="https://github.com/user-attachments/assets/7fb02334-89ec-4ba7-ac65-e6f56826e3c6" />
+<img width="536" height="928" alt="Screenshot_20261111_182653" src="https://github.com/user-attachments/assets/6a42c10b-9204-4411-b497-5bfa7c42f57c" />
+<img width="616" height="819" alt="изображение" src="https://github.com/user-attachments/assets/f0469179-719f-4c66-921c-d0e907cf4227" />
+
+
 ## 3. Специфікація gRPC API (Protocol Buffers v3)
 
 Для внутрішньої взаємодії між OrderService та InventoryService розроблено gRPC-контракт із використанням Protocol Buffers 3.
