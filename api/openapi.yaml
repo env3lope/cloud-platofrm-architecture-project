@@ -1,0 +1,569 @@
+openapi: 3.0.3
+
+info:
+  title: E-Commerce Order Service API
+  version: 1.0.0
+  description: |
+    REST API сервісу замовлень платформи E-Commerce Cloud Platform.
+    Надає операції для створення, перегляду, оновлення та скасування замовлень.
+  contact:
+    name: E-Commerce Platform Team
+    email: support@example.com
+
+servers:
+  - url: http://localhost:4010
+    description: Prism Mock Server
+
+tags:
+  - name: Orders
+    description: Операції із замовленнями
+
+paths:
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: Отримати список замовлень
+      operationId: getOrders
+      description: |
+        Повертає список замовлень із підтримкою пагінації
+        та фільтрації за статусом.
+      parameters:
+        - name: page
+          in: query
+          description: Номер сторінки
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+
+        - name: limit
+          in: query
+          description: Кількість записів на сторінці
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 10
+
+        - name: status
+          in: query
+          description: Фільтр за статусом замовлення
+          required: false
+          schema:
+            $ref: "#/components/schemas/OrderStatus"
+
+      responses:
+        "200":
+          description: Список замовлень успішно отримано
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderListResponse"
+              example:
+                data:
+                  - id: "550e8400-e29b-41d4-a716-446655440000"
+                    customerId: "550e8400-e29b-41d4-a716-446655440001"
+                    status: PENDING
+                    totalAmount: 24999.99
+                    createdAt: "2026-11-11T12:00:00Z"
+                pagination:
+                  page: 1
+                  limit: 20
+                  totalItems: 1
+                  totalPages: 1
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    post:
+      tags:
+        - Orders
+      summary: Створити замовлення
+      operationId: createOrder
+      description: Створює нове замовлення для покупця.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+            example:
+              customerId: "550e8400-e29b-41d4-a716-446655440001"
+              items:
+                - productId: "550e8400-e29b-41d4-a716-446655440002"
+                  quantity: 2
+                - productId: "550e8400-e29b-41d4-a716-446655440003"
+                  quantity: 1
+              shippingAddress:
+                city: "Kyiv"
+                street: "Khreshchatyk"
+                building: "1"
+                postalCode: "01001"
+                country: "Ukraine"
+
+      responses:
+        "201":
+          description: Замовлення успішно створено
+          headers:
+            Location:
+              description: URI створеного замовлення
+              schema:
+                type: string
+                example: /orders/550e8400-e29b-41d4-a716-446655440000
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                customerId: "550e8400-e29b-41d4-a716-446655440001"
+                status: PENDING
+                items:
+                  - productId: "550e8400-e29b-41d4-a716-446655440002"
+                    quantity: 2
+                    unitPrice: 12499.99
+                    subtotal: 24999.98
+                totalAmount: 24999.98
+                shippingAddress:
+                  city: "Kyiv"
+                  street: "Khreshchatyk"
+                  building: "1"
+                  postalCode: "01001"
+                  country: "Ukraine"
+                createdAt: "2026-11-11T12:00:00Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /orders/{orderId}:
+    parameters:
+      - name: orderId
+        in: path
+        required: true
+        description: Унікальний ідентифікатор замовлення
+        schema:
+          type: string
+          format: uuid
+        example: "550e8400-e29b-41d4-a716-446655440000"
+
+    get:
+      tags:
+        - Orders
+      summary: Отримати замовлення за ID
+      operationId: getOrderById
+      responses:
+        "200":
+          description: Замовлення знайдено
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    patch:
+      tags:
+        - Orders
+      summary: Оновити статус замовлення
+      operationId: updateOrderStatus
+      description: Змінює статус існуючого замовлення.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderStatusRequest"
+            example:
+              status: CANCELLED
+      responses:
+        "200":
+          description: Статус замовлення успішно оновлено
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags:
+        - Orders
+      summary: Скасувати замовлення
+      operationId: cancelOrder
+      description: Скасовує замовлення, якщо його поточний статус це дозволяє.
+      responses:
+        "204":
+          description: Замовлення успішно скасовано
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token, отриманий через Keycloak.
+
+  schemas:
+    OrderStatus:
+      type: string
+      enum:
+        - PENDING
+        - CONFIRMED
+        - PROCESSING
+        - SHIPPED
+        - DELIVERED
+        - CANCELLED
+      example: PENDING
+
+    CreateOrderRequest:
+      type: object
+      required:
+        - customerId
+        - items
+        - shippingAddress
+      properties:
+        customerId:
+          type: string
+          format: uuid
+          description: Ідентифікатор покупця
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/CreateOrderItem"
+        shippingAddress:
+          $ref: "#/components/schemas/Address"
+      example:
+        customerId: "550e8400-e29b-41d4-a716-446655440001"
+        items:
+          - productId: "550e8400-e29b-41d4-a716-446655440002"
+            quantity: 2
+        shippingAddress:
+          city: "Kyiv"
+          street: "Khreshchatyk"
+          building: "1"
+          postalCode: "01001"
+          country: "Ukraine"
+
+    CreateOrderItem:
+      type: object
+      required:
+        - productId
+        - quantity
+      properties:
+        productId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+      example:
+        productId: "550e8400-e29b-41d4-a716-446655440002"
+        quantity: 2
+
+    UpdateOrderStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+
+    Address:
+      type: object
+      required:
+        - city
+        - street
+        - building
+        - postalCode
+        - country
+      properties:
+        city:
+          type: string
+          minLength: 2
+          maxLength: 100
+        street:
+          type: string
+          minLength: 2
+          maxLength: 150
+        building:
+          type: string
+          minLength: 1
+          maxLength: 20
+        postalCode:
+          type: string
+          minLength: 3
+          maxLength: 12
+        country:
+          type: string
+          minLength: 2
+          maxLength: 100
+      example:
+        city: "Kyiv"
+        street: "Khreshchatyk"
+        building: "1"
+        postalCode: "01001"
+        country: "Ukraine"
+
+    OrderItem:
+      type: object
+      required:
+        - productId
+        - quantity
+        - unitPrice
+        - subtotal
+      properties:
+        productId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+        unitPrice:
+          type: number
+          format: double
+          minimum: 0
+        subtotal:
+          type: number
+          format: double
+          minimum: 0
+
+    Order:
+      type: object
+      required:
+        - id
+        - customerId
+        - status
+        - items
+        - totalAmount
+        - shippingAddress
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        totalAmount:
+          type: number
+          format: double
+          minimum: 0
+        shippingAddress:
+          $ref: "#/components/schemas/Address"
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        id: "550e8400-e29b-41d4-a716-446655440000"
+        customerId: "550e8400-e29b-41d4-a716-446655440001"
+        status: PENDING
+        items:
+          - productId: "550e8400-e29b-41d4-a716-446655440002"
+            quantity: 2
+            unitPrice: 12499.99
+            subtotal: 24999.98
+        totalAmount: 24999.98
+        shippingAddress:
+          city: "Kyiv"
+          street: "Khreshchatyk"
+          building: "1"
+          postalCode: "01001"
+          country: "Ukraine"
+        createdAt: "2026-11-11T12:00:00Z"
+
+    OrderListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - totalItems
+        - totalPages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        totalItems:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    Problem:
+      type: object
+      description: Формат помилки відповідно до RFC 7807 Problem Details.
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          format: uri
+          description: URI, що ідентифікує тип помилки.
+          example: https://example.com/problems/validation-error
+        title:
+          type: string
+          description: Короткий опис типу помилки.
+          example: Validation Error
+        status:
+          type: integer
+          description: HTTP-код відповіді.
+          example: 422
+        detail:
+          type: string
+          description: Детальний опис конкретної помилки.
+          example: One or more fields contain invalid values.
+        instance:
+          type: string
+          description: URI конкретного запиту, під час якого виникла помилка.
+          example: /orders
+        errors:
+          type: array
+          description: Додаткові відомості про помилки валідації.
+          items:
+            $ref: "#/components/schemas/ValidationError"
+
+    ValidationError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          example: items[0].quantity
+        message:
+          type: string
+          example: Quantity must be greater than zero.
+
+  responses:
+    BadRequest:
+      description: Некоректний запит (400 Bad Request).
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          example:
+            type: https://example.com/problems/bad-request
+            title: Bad Request
+            status: 400
+            detail: The request contains invalid parameters.
+            instance: /orders
+
+    Unauthorized:
+      description: Необхідна автентифікація (401 Unauthorized).
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          example:
+            type: https://example.com/problems/unauthorized
+            title: Unauthorized
+            status: 401
+            detail: Authentication is required to access this resource.
+            instance: /orders
+
+    NotFound:
+      description: Замовлення не знайдено (404 Not Found).
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          example:
+            type: https://example.com/problems/not-found
+            title: Not Found
+            status: 404
+            detail: The requested order does not exist.
+            instance: /orders/550e8400-e29b-41d4-a716-446655440000
+
+    UnprocessableEntity:
+      description: Помилка бізнес-логіки або валідації (422 Unprocessable Entity).
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          example:
+            type: https://example.com/problems/validation-error
+            title: Unprocessable Entity
+            status: 422
+            detail: The requested operation cannot be performed.
+            instance: /orders
+
+    InternalServerError:
+      description: Внутрішня помилка сервера (500 Internal Server Error).
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          example:
+            type: https://example.com/problems/internal-server-error
+            title: Internal Server Error
+            status: 500
+            detail: An unexpected server error occurred.
+            instance: /orders
