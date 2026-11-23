@@ -74,7 +74,6 @@ Prism використовує визначені в OpenAPI схеми для �
 <img width="536" height="928" alt="Screenshot_20261111_182653" src="https://github.com/user-attachments/assets/6a42c10b-9204-4411-b497-5bfa7c42f57c" />
 <img width="616" height="819" alt="изображение" src="https://github.com/user-attachments/assets/f0469179-719f-4c66-921c-d0e907cf4227" />
 
-
 ## 3. Специфікація gRPC API (Protocol Buffers v3)
 
 Для внутрішньої взаємодії між OrderService та InventoryService розроблено gRPC-контракт із використанням Protocol Buffers 3.
