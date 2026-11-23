@@ -1,0 +1,5 @@
+services:
+  ecommerce-demo:
+    build: .
+    container_name: ecommerce-demo
+    restart: "no"

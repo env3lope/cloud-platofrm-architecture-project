@@ -1,0 +1,75 @@
+ Image cloud-platofrm-architecture-project-ecommerce-demo Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 674B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 232B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/node:26-alpine
+#3 DONE 1.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 176B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 4.12kB done
+#5 DONE 0.0s
+
+#6 [1/6] FROM docker.io/library/node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5
+#6 resolve docker.io/library/node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 0.0s done
+#6 DONE 0.1s
+
+#7 [5/6] COPY tsconfig.json ./
+#7 CACHED
+
+#8 [4/6] RUN npm ci
+#8 CACHED
+
+#9 [2/6] WORKDIR /app
+#9 CACHED
+
+#10 [3/6] COPY package*.json ./
+#10 CACHED
+
+#11 [6/6] COPY src ./src
+#11 CACHED
+
+#12 exporting to image
+#12 exporting layers done
+#12 exporting manifest sha256:f379002b4e45d59dbf74fdb776b755844426fffb03347e7f5c5f2eaea951d4ed done
+#12 exporting config sha256:5d2d1e4b09514d9da5aa6ea43ee2b436029653895bfe00422d61d465a00ec634 done
+#12 exporting attestation manifest sha256:2037b44cafc994d5f6a274c2b228634d72a97b54d9e32681e7ae8fcac0639a99 0.0s done
+#12 exporting manifest list sha256:de4234198d0093690f77a3e4287d4e30b0381b81ab17b1913517af2863d6b151 0.0s done
+#12 naming to docker.io/library/cloud-platofrm-architecture-project-ecommerce-demo:latest done
+#12 unpacking to docker.io/library/cloud-platofrm-architecture-project-ecommerce-demo:latest 0.0s done
+#12 DONE 0.1s
+
+#13 resolving provenance for metadata file
+#13 DONE 0.0s
+ Image cloud-platofrm-architecture-project-ecommerce-demo Built 
+Attaching to ecommerce-demo
+ Container ecommerce-demo Starting 
+ Container ecommerce-demo Started 
+ecommerce-demo  | 
+ecommerce-demo  | > demo
+ecommerce-demo  | > ts-node src/demo.ts
+ecommerce-demo  | 
+ecommerce-demo  | --- Створення замовлення ---
+ecommerce-demo  | Товари зарезервовано для замовлення d6cfdef9-805e-42ad-8ac8-136c7744d04d
+ecommerce-demo  | Сповіщення сформовано для замовлення d6cfdef9-805e-42ad-8ac8-136c7744d04d
+ecommerce-demo  | 
+ecommerce-demo  | --- Перевірка повторної доставки ---
+ecommerce-demo  | Товари зарезервовано для замовлення d6cfdef9-805e-42ad-8ac8-136c7744d04d
+ecommerce-demo  | Сповіщення сформовано для замовлення d6cfdef9-805e-42ad-8ac8-136c7744d04d
+ecommerce-demo  | Дублікат події af6eb47c-c7d2-4143-900c-b3cff6e3eff3 пропущено
+ecommerce-demo  | Дублікат події af6eb47c-c7d2-4143-900c-b3cff6e3eff3 пропущено
+ecommerce-demo  | 
+ecommerce-demo  | --- Результат ---
+ecommerce-demo  | Кількість резервувань: 2
+ecommerce-demo  | Кількість сповіщень: 2
+ecommerce-demo  | Повторна доставка змінила стан резервування: false
+ecommerce-demo  | Повторна доставка змінила стан сповіщень: false
+[Kecommerce-demo exited with code 0
