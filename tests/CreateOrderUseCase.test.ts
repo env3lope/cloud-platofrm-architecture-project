@@ -2,14 +2,18 @@ import { describe, it, expect, vi } from 'vitest';
 
 import { CreateOrderUseCase } from '../src/Application/use-cases/CreateOrderUseCase';
 import type { IOrderRepository } from '../src/Domain/repositories/IOrderRepository';
+import type { IEventPublisher } from '../src/Application/ports/IEventPublisher';
 import { Order } from '../src/Domain/entities/Order';
 
 describe('CreateOrderUseCase', () => {
   it('успішно створює та зберігає замовлення', async () => {
     const save = vi.fn().mockResolvedValue(undefined);
+    const publish = vi.fn().mockResolvedValue(undefined);
 
     const repository: IOrderRepository = { save };
-    const useCase = new CreateOrderUseCase(repository);
+    const eventPublisher: IEventPublisher = { publish };
+
+    const useCase = new CreateOrderUseCase(repository, eventPublisher);
 
     const result = await useCase.execute({
       customerId: 'customer-1',
@@ -26,13 +30,17 @@ describe('CreateOrderUseCase', () => {
     expect(result.totalAmount).toBe(200);
     expect(save).toHaveBeenCalledOnce();
     expect(save).toHaveBeenCalledWith(result);
+    expect(publish).toHaveBeenCalledOnce();
   });
 
   it('не зберігає замовлення з некоректними даними', async () => {
     const save = vi.fn().mockResolvedValue(undefined);
+    const publish = vi.fn().mockResolvedValue(undefined);
 
     const repository: IOrderRepository = { save };
-    const useCase = new CreateOrderUseCase(repository);
+    const eventPublisher: IEventPublisher = { publish };
+
+    const useCase = new CreateOrderUseCase(repository, eventPublisher);
 
     await expect(
       useCase.execute({
@@ -42,14 +50,19 @@ describe('CreateOrderUseCase', () => {
     ).rejects.toThrow('Замовлення повинно містити хоча б один товар');
 
     expect(save).not.toHaveBeenCalled();
+    expect(publish).not.toHaveBeenCalled();
   });
 
   it('передає помилку репозиторію далі', async () => {
     const repositoryError = new Error('Помилка збереження замовлення');
+
     const save = vi.fn().mockRejectedValue(repositoryError);
+    const publish = vi.fn().mockResolvedValue(undefined);
 
     const repository: IOrderRepository = { save };
-    const useCase = new CreateOrderUseCase(repository);
+    const eventPublisher: IEventPublisher = { publish };
+
+    const useCase = new CreateOrderUseCase(repository, eventPublisher);
 
     await expect(
       useCase.execute({
@@ -65,5 +78,6 @@ describe('CreateOrderUseCase', () => {
     ).rejects.toBe(repositoryError);
 
     expect(save).toHaveBeenCalledOnce();
+    expect(publish).not.toHaveBeenCalled();
   });
 });
